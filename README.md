@@ -20,7 +20,7 @@ Change your driving test to a new location within a couple of search dates
 Be sure to add your license number, test reference and modify the search dates. Use a postcode in the loction as this script is designed to search through multiple centres. Decrease the wait times to increase search speed and frequency. However you may upset their firewall which will often issue a CAPCHA or block access entirely for a period.
 
 # Usage
-You need to have a test booked and paid for, hence a test booking reference. This script wil attempt to find a better location and / or date. It won't autimatically make the booking, rather leave you on the closest matching test site page with an audible 'attention' alert. You then go ahead and make the booking manually.
+You need to have a test booked and paid for, hence a test booking reference. This script wil attempt to find a better location and / or date. It won't automatically make the booking, rather leave you on the closest matching test site page with an audible 'attention' alert. You then go ahead and make the booking manually.
 
 # Search loop
 Nagivate to the DVSA 'change practical driving test' page and click the green button. The bot will then:
@@ -30,7 +30,7 @@ Nagivate to the DVSA 'change practical driving test' page and click the green bu
 4. Search each centre for avaiable dates between FIRST_TEST_DATE and LAST_TEST_DATE
 5. Load the test centre booking page for the closest centre with a matching date...
 6. ...or wait for AVG_SEARCH_INT and try again in a loop
-It will also try and deal with a range of DVSA issue pages (service unavailable, max search limit, 500 error, time out, log out etc.)
+It will also try and deal with a range of DVSA issue pages (service unavailable, max search limit, 500 error, time out, log out etc.). When running, look in the console log to see what is going on in more detail.
 
 # WAF CAPTCHA or Block
 The bot will make an alert sound and wait for manual input
