@@ -25,7 +25,7 @@ You need to have a test booked and paid for, hence a test booking reference. Thi
 # Search loop
 Nagivate to the DVSA 'change practical driving test' page and click the green button. The bot will then:
 1. Fill in your details and log in
-2. Search the TEST location
+2. Search for centres closest to the TEST_LOCATION
 3. Keep loading centres until it has at least MIN_CENTRES
 4. Search each centre for avaiable dates between FIRST_TEST_DATE and LAST_TEST_DATE
 5. Load the test centre booking page for the closest centre with a matching date...
