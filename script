@@ -10,10 +10,11 @@
 // ==/UserScript==
 
 // USAGE
-// 1. Update script configuration settings below
-// 2. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
-// 3. Login to DVSA site with your usual
+// 1. Book and pay for any available driving test
+// 2. Update script configuration settings
+// 3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 // 4. Enable script in tampermonkey
+// 5. Go to the DVSA 'change practical driving test' login
 
 // NB you might need to check in on it a few times to see if it's still running (and hasn't logged you out - or if you've been blocked by WAF rules)
 
