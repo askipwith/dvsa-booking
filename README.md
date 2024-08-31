@@ -2,10 +2,11 @@
 Change your driving test to a new location within a couple of search dates
 
 # Setup
-1. Update script configuration settings
-2. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
-3. Login to DVSA site with your usual
+1. Book and pay for any available driving test
+2. Update script configuration settings
+3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 4. Enable script in tampermonkey
+5. Go to the DVSA 'change practical driving test' login
 
 # Script configuration settings
  - LICENSE_NUMBER = "[add your number]" - candidate's driving license number
@@ -28,13 +29,13 @@ Nagivate to the DVSA 'change practical driving test' page and click the green bu
 2. Search for centres closest to the TEST_LOCATION
 3. Keep loading centres until it has at least MIN_CENTRES
 4. Search each centre for avaiable dates between FIRST_TEST_DATE and LAST_TEST_DATE
-5. Load the test centre booking page for the closest centre with a matching date...
+5. Load the test centre booking page for the closest centre with a matching date and make an alert sound...
 6. ...or wait for AVG_SEARCH_INT and try again in a loop
    
 It will also try and deal with a range of DVSA issue pages (service unavailable, max search limit, 500 error, time out, log out etc.). When running, look in the console log to see what is going on in more detail.
 
 # WAF CAPTCHA or Block
-The bot will make an alert sound and wait for manual input
+The bot will make an alert sound and wait for manual input.
 
 # General
 I've never coded in JS... so please feel free to improve I'd be delighted. I used Microsoft's copilot which is amazing. But the script will look horrible to someone that knows what they are doing I'm sure.
