@@ -8,14 +8,14 @@ Change your driving test to a new location within a couple of search dates
 4. Enable script in tampermonkey
 
 # Script configuration settings
- LICENSE_NUMBER = "[add your number]" - candidate's driving license number
- TEST_REFERENCE_NUMBER = "[add your number]" - candidate's driving test referene number
- TEST_LOCATION = "BR1" - the location you want to book - NB use a postcode to retrieve multiple centres
- FIRST_TEST_DATE = new Date("2024-09-07") - the earliest date for a test. Format YYYY-MM-DD
- LAST_TEST_DATE = new Date("2024-1209-17") - the latest date for a test. Format YYYY-MM-DD
- MIN_CENTRES = 16 - minimum number of centres to search
- AVG_PAGE_INT - average wait time (ms) between page requests to reduce risk of WAF block
- AVG_SEARCH_INT - average wait time (ms) between test centre searches to reduce risk of WAF block
+ - LICENSE_NUMBER = "[add your number]" - candidate's driving license number
+ -  TEST_REFERENCE_NUMBER = "[add your number]" - candidate's driving test referene number
+ -  TEST_LOCATION = "BR1" - the location you want to book - NB use a postcode to retrieve multiple centres
+ -  FIRST_TEST_DATE = new Date("2024-09-07") - the earliest date for a test. Format YYYY-MM-DD
+ -  LAST_TEST_DATE = new Date("2024-1209-17") - the latest date for a test. Format YYYY-MM-DD
+ -  MIN_CENTRES = 16 - minimum number of centres to search
+ -  AVG_PAGE_INT - average wait time (ms) between page requests to reduce risk of WAF block
+ -  AVG_SEARCH_INT - average wait time (ms) between test centre searches to reduce risk of WAF block
 
 Be sure to add your license number, test reference and modify the search dates. Use a postcode in the loction as this script is designed to search through multiple centres. Decrease the wait times to increase search speed and frequency. However you may upset their firewall which will often issue a CAPCHA or block access entirely for a period.
 
