@@ -10,15 +10,14 @@
 // ==/UserScript==
 
 // USAGE
+
 // 1. Book and pay for any available driving test
 // 2. Update script configuration settings
 // 3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 // 4. Enable script in tampermonkey
 // 5. Go to the DVSA 'change practical driving test' login
 
-// NB you might need to check in on it a few times to see if it's still running (and hasn't logged you out - or if you've been blocked by WAF rules)
-
-// script configuration settings
+// SCRIPT CONFIGURATION SETTINGS
 
 // candidate's driving license number
 const LICENSE_NUMBER = "[add your number]";
@@ -36,6 +35,8 @@ const MIN_CENTRES = 16;
 const AVG_PAGE_INT = 5000; // 5 secs
 // average wait time (ms) between test centre searches to reduce risk of WAF block
 const AVG_SEARCH_INT = 1000 * 60 * 5; // 5 mins
+
+// UTILITIES
 
 async function attentionAlert() {
     // NB need to enable audio in chrome site preferences for the DVSA site so that sound can autoplay
@@ -98,6 +99,8 @@ function log(message) {
     var formatted = today.toLocaleString();
     console.log(formatted + " - DVLA Script: " + message);
 }
+
+// MAIN SEARCH LOOP
 
 async function main() {
     'use strict';
@@ -274,7 +277,8 @@ async function main() {
     }
 }
 
-// Only run main() when a document is fully loaded
+// RUN MAIN() WHEN PAGE IS FULLY LOADED
+
 const checkIfLoaded = setInterval(() => {
     if (document.readyState === 'complete') {
         clearInterval(checkIfLoaded);
