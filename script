@@ -28,7 +28,7 @@ const TEST_LOCATION = "BR1";
 // the earliest date for a test. Format YYYY-MM-DD
 const FIRST_TEST_DATE = new Date("2024-09-07");
 // the latest date for a test. Format YYYY-MM-DD
-const LAST_TEST_DATE = new Date("2024-1209-17");
+const LAST_TEST_DATE = new Date("2024-09-17");
 // minimum number of centres to search
 const MIN_CENTRES = 16;
 // average wait time (ms) between page requests to reduce risk of WAF block
