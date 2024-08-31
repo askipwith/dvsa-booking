@@ -30,6 +30,7 @@ Nagivate to the DVSA 'change practical driving test' page and click the green bu
 4. Search each centre for avaiable dates between FIRST_TEST_DATE and LAST_TEST_DATE
 5. Load the test centre booking page for the closest centre with a matching date...
 6. ...or wait for AVG_SEARCH_INT and try again in a loop
+   
 It will also try and deal with a range of DVSA issue pages (service unavailable, max search limit, 500 error, time out, log out etc.). When running, look in the console log to see what is going on in more detail.
 
 # WAF CAPTCHA or Block
