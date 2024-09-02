@@ -14,40 +14,40 @@
 // @run-at       document-end
 // ==/UserScript==
 
-// USAGE
+// SETUP
 
 // 1. Book and pay for any available driving test
 // 2. Update default script configuration settings
 // 3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 // 4. Enable script in tampermonkey
-// 5. Go to the https://www.gov.uk/change-driving-test?dvsaConfigReset
+// 5. Load https://www.gov.uk/change-driving-test?dvsaConfigReset
 //    NB use the dvsaConfigReset parameter to reset stored and settings and login
 
-// SCRIPT CONFIGURATION SETTINGS
+// DEFAULT SCRIPT CONFIGURATION SETTINGS
 // Any of these default settings can be overwritten by adding a parameter in a URL
 
 let dvsaConfigParameters = [
-    // Application launch date & time. Format yyyy-mm-ddThh:mm:ss OR blank for immediate.
+    // Launch Time, format yyyy-mm-ddThh:mm:ss OR blank for immediate
     {name: "dvsaConfigLT", value: "2024-09-01T05:59:00"},
-    // candidate's driving license number
-    {name: "dvsaConfigLN", value: "[add your number]"},
-    // candidate's driving test reference number
-    {name: "dvsaCongigTRN", value: "[add your number]"},
-    // the location you want to book - NB use a postcode to retrieve multiple centres
+    // License Number, driving license number for the candidate
+    {name: "dvsaConfigLN", value: "SKIPW007065LC9AP"},
+    // Test Reference Number. Test reference for the candidate
+    {name: "dvsaCongigTRN", value: "62797468"},
+    // Search Location - Search Location, NB use a postcode to retrieve multiple centres
     {name: "dvsaConfigSL", value: "BR1"},
-    // the earliest date for a test. Format yyyy-mm-dd
+    // First Test Date, the earliest date for a test, format yyyy-mm-dd
     {name: "dvsaConfigFTD", value: new Date("2024-09-08")},
-    // the latest date for a test. Format yyyy-mm-dd
+    // Last Test Date, the latest date for a test, format yyyy-mm-dd
     {name: "dvsaConfigLTD", value: new Date("2024-09-17")},
-    // minimum number of centres to search
+    // Minimum Centres, minimum number of centres to search
     {name: "dvsaConfigMC", value: 12},
-    // average wait time (ms) between page requests to reduce risk of WAF block
+    // Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
     {name: "dvsaAPI", value: 1000 * 10}, // 10 secs
-    // average wait time (ms) between test centre searches to reduce risk of WAF block
+    // Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
     {name: "dvsaASI", value: 1000 * 60 * 10}, // 10 mins
-    // Enable audible alert for a WAF block
+    // WAF Block Alert, issue audible alert on a WAF block if true
     {name: "dvsaConfigWBA", value: true},
-    // Enable audible alert for centre with available dates
+    // Available Date Alert, issue audible alert when available date found if true
     {name: "dvsaConfigADA", value: true}
 ];
 
