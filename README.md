@@ -1,6 +1,9 @@
 # dvsa-booking
 Change your UK practical driving test to a new location within a couple of search dates
 
+# Usage
+You need to have a test booked and paid for, your driving license number and your test booking reference. This script will attempt to find a better location and / or date. It won't automatically make the booking, rather leave you on the closest matching test site page with an audible 'attention' alert. You then go ahead and change the booking manually.
+
 # Setup
 1. Book and pay for any available driving test
 2. Update default script configuration settings
@@ -22,9 +25,6 @@ Change your UK practical driving test to a new location within a couple of searc
  - dvsaConfigADA = true - Available Date Alert, issue audible alert when available date found if true
 
 Be sure to add your license number, test reference and modify the search dates. Use a postcode in the loction as this script is designed to search through multiple centres. Decrease the wait times to increase search speed and frequency. However you may upset their firewall which will often issue a CAPCHA or block access entirely for a period.
-
-# Usage
-You need to have a test booked and paid for, hence a test booking reference. This script wil attempt to find a better location and / or date. It won't automatically make the booking, rather leave you on the closest matching test site page with an audible 'attention' alert. You then go ahead and make the booking manually.
 
 # Search loop
 Nagivate to the DVSA 'change practical driving test' page and click the green button. The bot will then:
