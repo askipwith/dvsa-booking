@@ -2,7 +2,7 @@
 Change your UK practical driving test to a new location within a couple of search dates
 
 # Usage
-You need to have a test booked and paid for, your driving license number and your test booking reference. This script will attempt to find a better location and / or date. It won't automatically make the booking, rather leave you on the closest matching test site page with an audible 'attention' alert. You then go ahead and change the booking manually.
+You need to have a test booked and paid for, your driving license number and your test booking reference. This script will attempt to find a better location and / or date. It won't automatically make the booking, rather leave you on the closest matching test site page with an audible 'attention' alert. You then go ahead and change the booking manually. The script can be scheduled to fun at a given time e.g. at 0600 when new bookings tend to get released each day.
 
 # Setup
 1. Book and pay for any available driving test
