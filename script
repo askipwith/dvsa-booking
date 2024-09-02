@@ -1,3 +1,4 @@
+
 // ==UserScript==
 // @name         Find new local test
 // @namespace    http://tampermonkey.net/
@@ -5,38 +6,86 @@
 // @description  try to take over the world!
 // @author       askipwith
 // @match        https://driverpracticaltest.dvsa.gov.uk/*
+// @match        https://www.gov.uk/change-driving-test*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=dvsa.gov.uk
 // @grant        GM.xmlHttpRequest
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @run-at       document-end
 // ==/UserScript==
 
 // USAGE
 
 // 1. Book and pay for any available driving test
-// 2. Update script configuration settings
+// 2. Update default script configuration settings
 // 3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 // 4. Enable script in tampermonkey
-// 5. Go to the DVSA 'change practical driving test' login
+// 5. Go to the https://www.gov.uk/change-driving-test?dvsaConfigReset
+//    NB use the dvsaConfigReset parameter to reset stored and settings and login
 
 // SCRIPT CONFIGURATION SETTINGS
+// Any of these default settings can be overwritten by adding a parameter in a URL
 
-// candidate's driving license number
-const LICENSE_NUMBER = "[add your number]";
-// candidate's driving test referene number
-const TEST_REFERENCE_NUMBER = "[add your number]";
-// the location you want to book - NB use a postcode to retrieve multiple centres
-const TEST_LOCATION = "BR1";
-// the earliest date for a test. Format YYYY-MM-DD
-const FIRST_TEST_DATE = new Date("2024-09-07");
-// the latest date for a test. Format YYYY-MM-DD
-const LAST_TEST_DATE = new Date("2024-09-17");
-// minimum number of centres to search
-const MIN_CENTRES = 16;
-// average wait time (ms) between page requests to reduce risk of WAF block
-const AVG_PAGE_INT = 5000; // 5 secs
-// average wait time (ms) between test centre searches to reduce risk of WAF block
-const AVG_SEARCH_INT = 1000 * 60 * 5; // 5 mins
+let dvsaConfigParameters = [
+    // Application launch date & time. Format yyyy-mm-ddThh:mm:ss OR blank for immediate.
+    {name: "dvsaConfigLT", value: "2024-09-01T05:59:00"},
+    // candidate's driving license number
+    {name: "dvsaConfigLN", value: "[add your number]"},
+    // candidate's driving test reference number
+    {name: "dvsaCongigTRN", value: "[add your number]"},
+    // the location you want to book - NB use a postcode to retrieve multiple centres
+    {name: "dvsaConfigSL", value: "BR1"},
+    // the earliest date for a test. Format yyyy-mm-dd
+    {name: "dvsaConfigFTD", value: new Date("2024-09-08")},
+    // the latest date for a test. Format yyyy-mm-dd
+    {name: "dvsaConfigLTD", value: new Date("2024-09-17")},
+    // minimum number of centres to search
+    {name: "dvsaConfigMC", value: 12},
+    // average wait time (ms) between page requests to reduce risk of WAF block
+    {name: "dvsaAPI", value: 1000 * 10}, // 10 secs
+    // average wait time (ms) between test centre searches to reduce risk of WAF block
+    {name: "dvsaASI", value: 1000 * 60 * 10}, // 10 mins
+    // Enable audible alert for a WAF block
+    {name: "dvsaConfigWBA", value: true},
+    // Enable audible alert for centre with available dates
+    {name: "dvsaConfigADA", value: true}
+];
 
 // UTILITIES
+
+function dvsaConfigValue(paramName) {
+    const parameter = dvsaConfigParameters.find(param => param.name === paramName);
+    return parameter ? parameter.value : null;
+}
+
+function updateConfigParameters() {
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    // Unless dvsaConfigReset in URL, retrieve stored parameters from GM storage
+    let storedParams = {};
+    if (urlParams.has("dvsaConfigReset")) {
+        log("dvsaConfig parameters reset to default");
+    } else {
+        storedParams = JSON.parse(GM_getValue('dvsaConfigParameters', '{}'));
+        log("dvsaConfig parameters restored from prior values")
+    }
+    // Update any parameters with any restored values and then any URL values
+    dvsaConfigParameters.forEach(param => {
+        // If the parameter is in storedParams then overwrite that value
+        if (storedParams[param.name] !== undefined) param.value = storedParams[param.name];
+        // If the parameter is in the URL then overwrite the value
+        if (urlParams.has(param.name)) {
+            param.value = urlParams.get(param.name);
+            if (param.value.toLowerCase() === "true" || param.value.toLowerCase() === "false") param.value = (param.value.toLowerCase() === "true");
+            log("dvsaConfig parameter updated via URL: " + JSON.stringify(param));
+        }
+        // Update storedParams with all latest config parameters
+        storedParams[param.name] = param.value;
+    });
+    // Save updated parameters back to GM storage
+    GM_setValue('dvsaConfigParameters', JSON.stringify(storedParams));
+    log("dvsaConfig parameters set to: " + JSON.stringify(storedParams));
+}
 
 async function attentionAlert() {
     // NB need to enable audio in chrome site preferences for the DVSA site so that sound can autoplay
@@ -78,26 +127,40 @@ async function attentionAlert() {
     }
 }
 
-function restartSearch() {
-    document.location.href = "https://driverpracticaltest.dvsa.gov.uk/manage?execution=e1s1";
-}
-
-function randomIntBetweenSearches(){
-  return Math.floor(Math.random()*(AVG_SEARCH_INT+1) + AVG_SEARCH_INT/2)
-}
-
-function randomIntBetweenPages(){
-  return Math.floor(Math.random()*(AVG_PAGE_INT+1) + AVG_PAGE_INT/2)
+function randomSleepInt(avgInt) {
+  const t = dvsaConfigValue(avgInt);
+  return Math.floor(Math.random()*(t+1) + t/2);
 }
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+async function waitForLaunch(launchTime) {
+    const currentTime = new Date();
+    const launchDate = new Date(launchTime);
+    if (isNaN(launchDate.getTime()) || launchDate <= currentTime) {
+        log("Invalid launch time - launching immediately");
+        await sleep(randomSleepInt("dvsaAPI"));
+    }
+    const timeDifference = launchDate - currentTime;
+    log("Waiting for launch time: " + launchDate.toLocaleString());
+    await sleep(timeDifference);
+}
+
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
 function log(message) {
     var today = new Date();
     var formatted = today.toLocaleString();
-    console.log(formatted + " - DVLA Script: " + message);
+    console.log(formatted + " - DVSA Script: " + message);
+}
+
+function restartSearch() {
+    document.location.href = "https://driverpracticaltest.dvsa.gov.uk/manage?execution=e1s1";
 }
 
 // MAIN SEARCH LOOP
@@ -105,17 +168,31 @@ function log(message) {
 async function main() {
     'use strict';
 
-    // First double-check we haven't been blocked
+    // Get config parameters including any updates within this session
+    log("Getting latest config parameters");
+    updateConfigParameters();
+
+    const wafBlockAlert = dvsaConfigValue("dvsaConfigWBA");
+    // confirm WAF alert status
+    log("WAF audible alert is " + (wafBlockAlert ? "ON" : "OFF"));
+
+    // first double-check we haven't been blocked
     var iframe = document.getElementById('main-iframe');
-    // Check if the iframe exists
+    // check if the iframe exists
     if (iframe) {
-        // Get the src attribute of the iframe
+        // get the src attribute of the iframe
         var src = iframe.getAttribute('src');
-        // Check if the src contains the text "Incapsula"
+        // check if the src contains the text "Incapsula"
         if (src.includes('Incapsula')) {
-            // we have been blocked - alert for assistance!
-            log("We have been blocked!");
-            attentionAlert();
+            // we have been blocked!
+            if (wafBlockAlert) {
+                log("We have been blocked - alerting");
+                attentionAlert();
+            } else {
+                log("We have been blocked - silent wait and then retry");
+                await sleep(randomSleepInt("dvsaASI"))
+                restartSearch();
+            }
             return;
         }
     }
@@ -123,7 +200,7 @@ async function main() {
     // we are on the main 'view booking' page, change the test centre
     if (document.title.includes("Booking details")) {
         log("Changing the driving test centre");
-        await sleep(randomIntBetweenPages());
+        await sleep(randomSleepInt("dvsaAPI"));
         const changeButton = document.getElementById("test-centre-change");
         changeButton.click()
         return;
@@ -136,20 +213,22 @@ async function main() {
         let numCentres = document.querySelectorAll('.test-centre-details').length;
 
         // if there are no search results go ahead and search
+        const searchLocation = dvsaConfigValue("dvsaConfigSL");
         if (numCentres == 0) {
-            log("Getting test centres near: " + TEST_LOCATION)
-            const searchLocation = document.getElementById("test-centres-input");
-            searchLocation.value = TEST_LOCATION;
-            await sleep(randomIntBetweenPages());
+            log("Getting test centres near: " + searchLocation)
+            const locationInput = document.getElementById("test-centres-input");
+            locationInput.value = searchLocation;
+            await sleep(randomSleepInt("dvsaAPI"));
             const submit = document.getElementById("test-centres-submit");
             submit.click();
             return;
         }
 
-        // if we need more search results load more
-        if (numCentres < MIN_CENTRES) {
-            log("Not enough search results: loading more")
-            await sleep(randomIntBetweenPages());
+        // if we need more test centres then fetch more
+        const minCentres = dvsaConfigValue("dvsaConfigMC");
+        if (numCentres < minCentres) {
+            log(numCentres + " test centres - need at least " + minCentres + ": fetching more")
+            await sleep(randomSleepInt("dvsaAPI"));
             const submit = document.getElementById("fetch-more-centres");
             submit.click();
             return;
@@ -184,7 +263,7 @@ async function main() {
         // append available dates for each centre
         log("Getting available dates for each centre");
         for (const centre of testCentreData) {
-            const waitTime = randomIntBetweenPages();
+            const waitTime = randomSleepInt("dvsaAPI");
             log("Waiting for " + (waitTime/1000).toFixed(1) + " seconds then getting dates for: " + JSON.stringify(centre.name));
             await sleep(waitTime);
 
@@ -217,13 +296,17 @@ async function main() {
             });
         }
 
-        // Check for the first test centre with an available date that is in range
-        log("Searching test centres for an available date that is in range");
+        // Check for the first test centre with an available date in range
+        log("Searching test centres for available dates in range");
+        const firstTestTime = new Date(dvsaConfigValue("dvsaConfigFTD")).getTime();
+        const lastTestTime = new Date(dvsaConfigValue("dvsaConfigLTD")).getTime();
         for (const centre of testCentreData) {
             for (const date of centre.dates) {
                 const testDate = new Date(date);
-                if (testDate.getTime() >= FIRST_TEST_DATE.getTime() && testDate <= LAST_TEST_DATE.getTime()) {
+                const testTime = testDate.getTime();
+                if (testTime >= firstTestTime && testTime <= lastTestTime) {
                     log("Date found: " + centre.name + " has availability on: " + testDate + "!")
+                    await sleep(randomSleepInt("dvsaAPI"));
                     centre.element.click()
                     return;
                 }
@@ -231,32 +314,33 @@ async function main() {
         }
 
         // if there are no matching dates in any of the centres then wait before looping again
-        log( "Nothing found: waiting before searching again")
-        setTimeout(restartSearch, randomIntBetweenSearches());
+        log("Nothing found: waiting before searching again")
+        await sleep(randomSleepInt("dvsaASI"));
+        restartSearch();
         return;
     }
 
     // we are on a test centre page with matching dates
     if (document.title.includes("test times available")) {
         log("This test centre is the closest with matching available dates");
-        attentionAlert();
+        if (dvsaConfigValue("dvsaConfigADA")) attentionAlert();
         return;
     }
 
     // we are logged out - try logging in again
     if (document.title.includes("Access your booking")) {
-        log("We are logged out!");
+        log("Logging in");
 
         // Set the user name
         const licenseInput = document.getElementById('driving-licence-number');
-        licenseInput.value = LICENSE_NUMBER;
+        licenseInput.value = dvsaConfigValue("dvsaConfigLN");
 
         // Set the driving test ID
         const testRefInput = document.getElementById('application-reference-number');
-        testRefInput.value = TEST_REFERENCE_NUMBER;
+        testRefInput.value = dvsaConfigValue("dvsaCongigTRN");
 
         // Log back in
-        await sleep(randomIntBetweenPages());
+        await sleep(randomSleepInt("dvsaAPI"));
         const submit = document.getElementById("booking-login");
         submit.click();
         return;
@@ -271,18 +355,23 @@ async function main() {
     for (const issue of issues) {
         if (document.title.includes(issue)) {
             log(issue + " - wait and reload");
-            setTimeout(restartSearch, randomIntBetweenSearches());
+            await sleep(randomSleepInt("dvsaASI"));
+            restartSearch();
             return;
         }
     }
+
+    // we are on the change driving appt page (with the green button)
+    if (document.title.includes("Change your driving test appointment")) {
+        log("Checking launch time");
+        await(waitForLaunch(dvsaConfigValue("dvsaConfigLT")));
+        const startButton = document.getElementsByClassName("govuk-button--start")[0];
+        startButton.click();
+        return;
+    }
 }
 
-// RUN MAIN() WHEN PAGE IS FULLY LOADED
+// RUN MAIN()
 
-const checkIfLoaded = setInterval(() => {
-    if (document.readyState === 'complete') {
-        clearInterval(checkIfLoaded);
-        log('Page is fully loaded: running main()');
-        main();
-    }
-}, 100); // Check every 100 milliseconds
+log("Running main()");
+main();
