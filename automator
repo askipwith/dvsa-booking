@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# URL to open
+URL="https://www.gov.uk/change-driving-test?dvsaConfigReset&dvsaConfigWBA=false"
+
+# Check if Chrome is running
+if pgrep "chrome" > /dev/null
+then
+    # If Chrome is running, open a new window
+    open -na "Google Chrome" --args "$URL"
+else
+    # If Chrome is not running, open Chrome with the specified page
+    open -a "/Applications/Google Chrome.app" --args --disable-restore-session-state "$URL"
+fi
