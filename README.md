@@ -16,8 +16,8 @@ Change your driving test to a new location within a couple of search dates
  - dvsaConfigFTD = new Date("2024-09-07") - First Test Date, the earliest date for a test, format yyyy-mm-dd
  - dvsaConfigLTD = new Date("2024-1209-17") - Last Test Date, the latest date for a test, format yyyy-mm-dd
  - dvsaConfigMC = 16 - Minimum Centres, minimum number of centres to search
- - dvsaAPI = 1000 * 10 - Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
- - dvsaASI = 1000 * 60 * 10 - Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
+ - dvsaConfigAPI = 1000 * 10 - Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
+ - dvsaConfigASI = 1000 * 60 * 10 - Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
  - dvsaConfigWBA = true - WAF Block Alert, issue audible alert on a WAF block if true
  - dvsaConfigADA = true - Available Date Alert, issue audible alert when available date found if true
 
@@ -47,7 +47,7 @@ Set the 'dvsaConfigLT' config parameter to a future date and then load: https://
 Create an application to run a shell script to launch chrome with the required URL. Then use a method to run that script at a given time. I use a mac: application is created in automator, and I use the calendar to launch the application, using a custom alert to open the application file. This seems to work better.
 
 # Notes on the WAF blocker
-It's pretty harsh and unpredictable. Keep you page load interval, search interval, min centre settings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
+It's pretty harsh and unpredictable. Keep your dvsaConfigAPI, dvsaConfigASI, dvsaConfigMC settings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
 
 # WAF CAPTCHA or Block / Available Date Found alerts
 If enabled via configuration settings, the sript will make an alert sound and wait for manual input. Make sure your sound is enabled.
