@@ -38,7 +38,7 @@ Nagivate to the DVSA 'change practical driving test' page and click the green bu
 It will also try and deal with a range of DVSA issue pages (service unavailable, max search limit, 500 error, time out, log out etc.). When running, look in the console log to see what is going on in more detail.
 
 # Updating configuration settings
-As soon as th script is run, the default settings are copied into storage which will persist, even if the default settings are changed. To re-load the latest default settings add 'dvsaConfigReset' to any of the matching URLs. To change any of the settings via the URL, add the parameter and new value to the URL. Example: to reset stored values to the script's latest default settings and then disable audible alerts for a WAF block load: https://www.gov.uk/change-driving-test?dvsaConfigReset&dvsaConfigWBA=false
+As soon as the script is run, the default settings are copied into storage which will persist, even when default settings are changed in the script. To re-load (updated) default settings add 'dvsaConfigReset' to any of the matching URLs. To change any of the settings via the URL, add the parameter and new value to the URL. Any settings updated in this way will persist. Example: to reset stored values to the script's latest default settings and then disable audible alerts for a WAF block load: https://www.gov.uk/change-driving-test?dvsaConfigReset&dvsaConfigWBA=false
 
 # Timed launch - method 1
 Set the 'dvsaConfigLT' config parameter to a future date and then load: https://www.gov.uk/change-driving-test - the script will wait. However I have had issues with the WAF blocker using this method.
