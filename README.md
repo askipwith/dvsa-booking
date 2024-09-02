@@ -47,10 +47,10 @@ Set the 'dvsaConfigLT' config parameter to a future date and then load: https://
 Create an application to run a shell script to launch chrome with the required URL. Then use a method to run that script at a given time. I use a mac: application is created in automator, and I use the calendar to launch the application, using a custom alert to open the application file. This seems to work better.
 
 # Notes on the WAF blocker
-It's pretty harsh and unpredictable. Keep you page load interval, search interval, min centre sesstings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
+It's pretty harsh and unpredictable. Keep you page load interval, search interval, min centre settings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
 
 # WAF CAPTCHA or Block / Available Date Found alerts
-If enabled via configuration settings, the sript will make an alert sound and wait for manual input. Make sure your sound is enebled.
+If enabled via configuration settings, the sript will make an alert sound and wait for manual input. Make sure your sound is enabled.
 
 # General
 I've never coded in JS... so please feel free to improve I'd be delighted. I used Microsoft's copilot which is amazing. But the script will look horrible to someone that knows what they are doing I'm sure.
