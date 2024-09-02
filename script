@@ -42,9 +42,9 @@ let dvsaConfigParameters = [
     // Minimum Centres, minimum number of centres to search
     {name: "dvsaConfigMC", value: 12},
     // Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
-    {name: "dvsaAPI", value: 1000 * 10}, // 10 secs
+    {name: "dvsaConfigAPI", value: 1000 * 10}, // 10 secs
     // Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
-    {name: "dvsaASI", value: 1000 * 60 * 10}, // 10 mins
+    {name: "dvsaConfigASI", value: 1000 * 60 * 10}, // 10 mins
     // WAF Block Alert, issue audible alert on a WAF block if true
     {name: "dvsaConfigWBA", value: true},
     // Available Date Alert, issue audible alert when available date found if true
@@ -141,7 +141,7 @@ async function waitForLaunch(launchTime) {
     const launchDate = new Date(launchTime);
     if (isNaN(launchDate.getTime()) || launchDate <= currentTime) {
         log("Invalid launch time - launching immediately");
-        await sleep(randomSleepInt("dvsaAPI"));
+        await sleep(randomSleepInt("dvsaConfigAPI"));
     }
     const timeDifference = launchDate - currentTime;
     log("Waiting for launch time: " + launchDate.toLocaleString());
@@ -190,7 +190,7 @@ async function main() {
                 attentionAlert();
             } else {
                 log("We have been blocked - silent wait and then retry");
-                await sleep(randomSleepInt("dvsaASI"))
+                await sleep(randomSleepInt("dvsaConfigASI"))
                 restartSearch();
             }
             return;
@@ -200,7 +200,7 @@ async function main() {
     // we are on the main 'view booking' page, change the test centre
     if (document.title.includes("Booking details")) {
         log("Changing the driving test centre");
-        await sleep(randomSleepInt("dvsaAPI"));
+        await sleep(randomSleepInt("dvsaConfigAPI"));
         const changeButton = document.getElementById("test-centre-change");
         changeButton.click()
         return;
@@ -218,7 +218,7 @@ async function main() {
             log("Getting test centres near: " + searchLocation)
             const locationInput = document.getElementById("test-centres-input");
             locationInput.value = searchLocation;
-            await sleep(randomSleepInt("dvsaAPI"));
+            await sleep(randomSleepInt("dvsaConfigAPI"));
             const submit = document.getElementById("test-centres-submit");
             submit.click();
             return;
@@ -228,7 +228,7 @@ async function main() {
         const minCentres = dvsaConfigValue("dvsaConfigMC");
         if (numCentres < minCentres) {
             log(numCentres + " test centres - need at least " + minCentres + ": fetching more")
-            await sleep(randomSleepInt("dvsaAPI"));
+            await sleep(randomSleepInt("dvsaConfigAPI"));
             const submit = document.getElementById("fetch-more-centres");
             submit.click();
             return;
@@ -263,7 +263,7 @@ async function main() {
         // append available dates for each centre
         log("Getting available dates for each centre");
         for (const centre of testCentreData) {
-            const waitTime = randomSleepInt("dvsaAPI");
+            const waitTime = randomSleepInt("dvsaConfigAPI");
             log("Waiting for " + (waitTime/1000).toFixed(1) + " seconds then getting dates for: " + JSON.stringify(centre.name));
             await sleep(waitTime);
 
@@ -306,7 +306,7 @@ async function main() {
                 const testTime = testDate.getTime();
                 if (testTime >= firstTestTime && testTime <= lastTestTime) {
                     log("Date found: " + centre.name + " has availability on: " + testDate + "!")
-                    await sleep(randomSleepInt("dvsaAPI"));
+                    await sleep(randomSleepInt("dvsaConfigAPI"));
                     centre.element.click()
                     return;
                 }
@@ -315,7 +315,7 @@ async function main() {
 
         // if there are no matching dates in any of the centres then wait before looping again
         log("Nothing found: waiting before searching again")
-        await sleep(randomSleepInt("dvsaASI"));
+        await sleep(randomSleepInt("dvsaConfigASI"));
         restartSearch();
         return;
     }
@@ -340,7 +340,7 @@ async function main() {
         testRefInput.value = dvsaConfigValue("dvsaCongigTRN");
 
         // Log back in
-        await sleep(randomSleepInt("dvsaAPI"));
+        await sleep(randomSleepInt("dvsaConfigAPI"));
         const submit = document.getElementById("booking-login");
         submit.click();
         return;
@@ -355,7 +355,7 @@ async function main() {
     for (const issue of issues) {
         if (document.title.includes(issue)) {
             log(issue + " - wait and reload");
-            await sleep(randomSleepInt("dvsaASI"));
+            await sleep(randomSleepInt("dvsaConfigASI"));
             restartSearch();
             return;
         }
