@@ -1,5 +1,5 @@
 # dvsa-booking
-Change your driving test to a new location within a couple of search dates
+Change your UK practical driving test to a new location within a couple of search dates
 
 # Setup
 1. Book and pay for any available driving test
