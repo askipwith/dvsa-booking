@@ -44,7 +44,7 @@ As soon as th script is run, the default settings are copied into storage which 
 Set the 'dvsaConfigLT' config parameter to a future date and then load: https://www.gov.uk/change-driving-test - the script will wait. However I have had issues with the WAF blocker using this method.
 
 # Timed launch - method 2
-Create an application to run a shell script to launch chrome with the required URL. Then use a method to run that script at a given time. I use a mac: application is created in automator, and I use the calendar to launch the application, using a custom alert to open the application file. This seems to work better.
+Create an application to run a shell script to launch chrome with the required URL. Then use a method to run that script at a given time. I use a mac: application is created in automator, and I use the calendar to launch the application, using a custom alert to open the application file. This seems to work better. Test your own computer settings to ensure that (a) it does not sleep and (b) there are no 'screen lock', 'focus' or 'do not disturb' settings that will prevent the run.
 
 # Notes on the WAF blocker
 It's pretty harsh and unpredictable. Keep your dvsaConfigAPI, dvsaConfigASI, dvsaConfigMC settings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
