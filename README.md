@@ -3,20 +3,23 @@ Change your driving test to a new location within a couple of search dates
 
 # Setup
 1. Book and pay for any available driving test
-2. Update script configuration settings
+2. Update default script configuration settings
 3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 4. Enable script in tampermonkey
-5. Go to the DVSA 'change practical driving test' login
+5. Load https://www.gov.uk/change-driving-test?dvsaConfigReset. NB use the dvsaConfigReset parameter to reset stored and settings and login
 
-# Script configuration settings
- - LICENSE_NUMBER = "[add your number]" - candidate's driving license number
- -  TEST_REFERENCE_NUMBER = "[add your number]" - candidate's driving test referene number
- -  TEST_LOCATION = "BR1" - the location you want to book - NB use a postcode to retrieve multiple centres
- -  FIRST_TEST_DATE = new Date("2024-09-07") - the earliest date for a test. Format YYYY-MM-DD
- -  LAST_TEST_DATE = new Date("2024-1209-17") - the latest date for a test. Format YYYY-MM-DD
- -  MIN_CENTRES = 16 - minimum number of centres to search
- -  AVG_PAGE_INT - average wait time (ms) between page requests to reduce risk of WAF block
- -  AVG_SEARCH_INT - average wait time (ms) between test centre searches to reduce risk of WAF block
+# Default script configuration settings
+ - dvsaConfigLT = "2024-09-01T05:59:00" - Launch Time, format yyyy-mm-ddThh:mm:ss OR blank for immediate
+ - dvsaConfigLN = "[add your number]" - License Number, driving license number for the candidate
+ - dvsaCongigTRN = "[add your number]" - Test Reference Number, test reference for the candidate
+ - dvsaConfigSL = "BR1" - Search Location - Search Location, NB use a postcode to retrieve multiple centres
+ - dvsaConfigFTD = new Date("2024-09-07") - First Test Date, the earliest date for a test, format yyyy-mm-dd
+ - dvsaConfigLTD = new Date("2024-1209-17") - Last Test Date, the latest date for a test, format yyyy-mm-dd
+ - dvsaConfigMC = 16 - Minimum Centres, minimum number of centres to search
+ - dvsaAPI = 1000 * 10 - Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
+ - dvsaASI = 1000 * 60 * 10 - Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
+ - dvsaConfigWBA = true - WAF Block Alert, issue audible alert on a WAF block if true
+ - dvsaConfigADA = true - Available Date Alert, issue audible alert when available date found if true
 
 Be sure to add your license number, test reference and modify the search dates. Use a postcode in the loction as this script is designed to search through multiple centres. Decrease the wait times to increase search speed and frequency. However you may upset their firewall which will often issue a CAPCHA or block access entirely for a period.
 
@@ -34,8 +37,20 @@ Nagivate to the DVSA 'change practical driving test' page and click the green bu
    
 It will also try and deal with a range of DVSA issue pages (service unavailable, max search limit, 500 error, time out, log out etc.). When running, look in the console log to see what is going on in more detail.
 
-# WAF CAPTCHA or Block
-The bot will make an alert sound and wait for manual input.
+# Updating configuration settings
+As soon as th script is run, the default settings are copied into storage which will persist, even if the default settings are changed. To re-load the latest default settings add 'dvsaConfigReset' to any of the matching URLs. To change any of the settings via the URL, add the parameter and new value to the URL. Example: to reset stored values to the script's latest default settings and then disable audible alerts for a WAF block load: https://www.gov.uk/change-driving-test?dvsaConfigReset&dvsaConfigWBA=false
+
+# Timed launch - method 1
+Set the 'dvsaConfigLT' config parameter to a future date and then load: https://www.gov.uk/change-driving-test - the script will wait. However I have had issues with the WAF blocker using this method.
+
+# Timed launch - method 2
+Create an application to run a shell script to launch chrome with the required URL. Then use a method to run that script at a given time. I use a mac: application is created in automator, and I use the calendar to launch the application, using a custom alert to open the application file. This seems to work better.
+
+# Notes on the WAF blocker
+It's pretty harsh and unpredictable. Keep you page load interval, search interval, min centre sesstings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
+
+# WAF CAPTCHA or Block / Available Date Found alerts
+If enabled via configuration settings, the sript will make an alert sound and wait for manual input. Make sure your sound is enebled.
 
 # General
 I've never coded in JS... so please feel free to improve I'd be delighted. I used Microsoft's copilot which is amazing. But the script will look horrible to someone that knows what they are doing I'm sure.
