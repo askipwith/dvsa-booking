@@ -279,6 +279,7 @@ function restartSearch() {
     document.location.href = "https://driverpracticaltest.dvsa.gov.uk/manage?execution=e1s1";
 }
 
+
 // MAIN SEARCH LOOP
 
 async function main() {
@@ -539,6 +540,7 @@ async function main() {
         return;
     }
 }
+
 
 // RUN MAIN() WHEN LOADED (WITH RELOAD IF NECESSARY)
 
