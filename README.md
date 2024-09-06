@@ -30,9 +30,9 @@ Search parameters - dates and times:
  - dvsaConfigFTD = "2025-01-01" - First Test Date, the earliest date for a test, format yyyy-mm-dd
  - dvsaConfigLTD = "2025-03-30" - Last Test Date, the latest date for a test, format yyyy-mm-dd
  - dvsaConfigITD = "2025-01-23" - Ideal Test Date, the ideal date for a test, format yyyy-mm-dd
- - dvsaConfigFTT = "10:30" - First Test Time, the earliest time for a test, format yyyy-mm-dd
- - dvsaConfigLTT = "16:30" - Last Test Time, the latest time for a test, format yyyy-mm-dd
- - dvsaConfigITT = "12:00" - Ideal Test Time, the ideal time for a test, format yyyy-mm-dd
+ - dvsaConfigFTT = "10:30" - First Test Time, the earliest time for a test, format hh:mm 24hr
+ - dvsaConfigLTT = "16:30" - Last Test Time, the latest time for a test, format hh:mm 24hr
+ - dvsaConfigITT = "12:00" - Ideal Test Time, the ideal time for a test, format hh:mm 24hr
 
 Alert parameters:
  - dvsaConfigWBA = true - WAF Block Alert, issue audible alert on a WAF block if true
