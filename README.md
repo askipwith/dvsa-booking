@@ -64,8 +64,8 @@ Create an application to run a shell script to launch chrome with the required U
 # Notes on the WAF blocker
 It's pretty harsh and unpredictable. Keep your dvsaConfigAPI, dvsaConfigASI, dvsaConfigMC settings to something reasonable. Running incognito may help, but not when using a timed launch as the WAF seems to insist on a CAPTURE immediately.
 
-# WAF CAPTCHA or Block / Available Date Found alerts
-If enabled via configuration settings, the sript will make an alert sound and wait for manual input. Make sure your sound is enabled.
+# WAF CAPTCHA or Block / Available Date alerts
+If enabled via configuration settings, the script will make an alert sound and wait for manual input. Make sure your sound is enabled.
 
 # General
 I've never coded in JS... so please feel free to improve I'd be delighted. I used Microsoft's copilot which is amazing. But the script will look horrible to someone that knows what they are doing I'm sure.
