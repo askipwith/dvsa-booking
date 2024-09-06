@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Find new local test
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  try to take over the world!
 // @author       askipwith
 // @match        https://driverpracticaltest.dvsa.gov.uk/*
@@ -20,8 +20,7 @@
 // 2. Update default script configuration settings
 // 3. Enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 // 4. Enable script in tampermonkey
-// 5. Load https://www.gov.uk/change-driving-test?dvsaConfigReset
-//    NB use the dvsaConfigReset parameter to reset stored and settings and login
+// 5. Load https://www.gov.uk/change-driving-test?dvsaConfigReset to reset any stored parameters to defaults and login
 
 
 // FUTURE IMPROVEMENTS
@@ -38,9 +37,9 @@ let dvsaConfigParameters = [
     // CANDIDATE PARAMETERS
 
     // License Number, driving license number for the candidate
-    {name: "dvsaConfigLN", value: "SKIPW007065LC9AP"},
+    {name: "dvsaConfigLN", value: "[add your number]"},
     // Test Reference Number. Test reference for the candidate
-    {name: "dvsaCongigTRN", value: "62797468"},
+    {name: "dvsaCongigTRN", value: "[add your number]"},
 
     // DELAY PARAMETERS
 
@@ -542,7 +541,7 @@ async function main() {
 }
 
 
-// RUN MAIN() WHEN LOADED (WITH RELOAD IF NECESSARY)
+// RUN MAIN() WHEN LOADED (OR RELOAD IF NECESSARY)
 
 log("Waiting for page to load");
 
