@@ -12,16 +12,20 @@ You need to have a test booked and paid for, your driving license number and you
 5. Load https://www.gov.uk/change-driving-test?dvsaConfigReset. NB use the dvsaConfigReset parameter to reset stored and settings and login
 
 # Default script configuration settings
+
 Candidate parameters:
  - dvsaConfigLN = "[add your number]" - License Number, driving license number for the candidate
  - dvsaCongigTRN = "[add your number]" - Test Reference Number, test reference for the candidate
+
 Delay parameters:
  - dvsaConfigLT = "2024-09-01T05:59:00" - Launch Time, format yyyy-mm-ddThh:mm:ss OR blank for immediate
  - dvsaConfigAPI = 1000 * 10 - Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
  - dvsaConfigASI = 1000 * 60 * 10 - Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
+
 Search parameters - test centre:
  - dvsaConfigSL = "BR1" - Search Location - Search Location, NB use a postcode to retrieve multiple centres
  - dvsaConfigMC = 8 - Minimum Centres, minimum number of centres to search
+
 Search parameters - dates and times:
  - dvsaConfigFTD = "2025-01-01" - First Test Date, the earliest date for a test, format yyyy-mm-dd
  - dvsaConfigLTD = "2025-03-30" - Last Test Date, the latest date for a test, format yyyy-mm-dd
@@ -29,6 +33,7 @@ Search parameters - dates and times:
  - dvsaConfigFTT = "10:30" - First Test Time, the earliest time for a test, format yyyy-mm-dd
  - dvsaConfigLTT = "16:30" - Last Test Time, the latest time for a test, format yyyy-mm-dd
  - dvsaConfigITT = "12:00" - Ideal Test Time, the ideal time for a test, format yyyy-mm-dd
+
 Alert parameters:
  - dvsaConfigWBA = true - WAF Block Alert, issue audible alert on a WAF block if true
  - dvsaConfigADA = true - Available Date Alert, issue audible alert when available date found if true
