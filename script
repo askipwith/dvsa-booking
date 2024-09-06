@@ -1,8 +1,7 @@
-
 // ==UserScript==
 // @name         Find new local test
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.0
 // @description  try to take over the world!
 // @author       askipwith
 // @match        https://driverpracticaltest.dvsa.gov.uk/*
@@ -11,8 +10,9 @@
 // @grant        GM.xmlHttpRequest
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
+
 
 // SETUP
 
@@ -23,41 +23,97 @@
 // 5. Load https://www.gov.uk/change-driving-test?dvsaConfigReset
 //    NB use the dvsaConfigReset parameter to reset stored and settings and login
 
+
+// FUTURE IMPROVEMENTS
+
+// 1. Add a parameter to enable the script to go ahead and book an available slot
+
+
 // DEFAULT SCRIPT CONFIGURATION SETTINGS
+
 // Any of these default settings can be overwritten by adding a parameter in a URL
 
 let dvsaConfigParameters = [
-    // Launch Time, format yyyy-mm-ddThh:mm:ss OR blank for immediate
-    {name: "dvsaConfigLT", value: "2024-09-01T05:59:00"},
+
+    // CANDIDATE PARAMETERS
+
     // License Number, driving license number for the candidate
     {name: "dvsaConfigLN", value: "SKIPW007065LC9AP"},
     // Test Reference Number. Test reference for the candidate
     {name: "dvsaCongigTRN", value: "62797468"},
-    // Search Location - Search Location, NB use a postcode to retrieve multiple centres
-    {name: "dvsaConfigSL", value: "BR1"},
-    // First Test Date, the earliest date for a test, format yyyy-mm-dd
-    {name: "dvsaConfigFTD", value: new Date("2024-09-08")},
-    // Last Test Date, the latest date for a test, format yyyy-mm-dd
-    {name: "dvsaConfigLTD", value: new Date("2024-09-17")},
-    // Minimum Centres, minimum number of centres to search
-    {name: "dvsaConfigMC", value: 12},
+
+    // DELAY PARAMETERS
+
+    // Launch Time, format yyyy-mm-ddThh:mm:ss OR blank for immediate
+    {name: "dvsaConfigLT", value: "2024-09-01T05:59:00"},
     // Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
     {name: "dvsaConfigAPI", value: 1000 * 10}, // 10 secs
     // Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
     {name: "dvsaConfigASI", value: 1000 * 60 * 10}, // 10 mins
+
+    // SEARCH PARAMETERS - TEST CENTRE
+
+    // Search Location - Search Location, NB use a postcode to retrieve multiple centres
+    {name: "dvsaConfigSL", value: "BR1"},
+    // Minimum Centres, minimum number of centres to search
+    {name: "dvsaConfigMC", value: 8},
+
+    // SEARCH PARAMETERS - DATES AND TIMES
+
+    // First Test Date, the earliest date for a test, format yyyy-mm-dd
+    {name: "dvsaConfigFTD", value: "2025-01-01"},
+    // Last Test Date, the latest date for a test, format yyyy-mm-dd
+    {name: "dvsaConfigLTD", value: "2025-03-30"},
+    // Ideal Test Date, the ideal date for a test, format yyyy-mm-dd
+    {name: "dvsaConfigITD", value: "2024-01-23"},
+    // First Test Time, the earliest time for a test, format hh:mm 24hr
+    {name: "dvsaConfigFTT", value: "10:30"},
+    // Last Test Time, the latest time for a test, format hh:mm 24hr
+    {name: "dvsaConfigLTT", value: "16:30"},
+    // Ideal Test Time, the ideal time for a test, format hh:mm 24hr
+    {name: "dvsaConfigITT", value: "12:00"},
+
+    // ALERT PARAMETERS
+
     // WAF Block Alert, issue audible alert on a WAF block if true
     {name: "dvsaConfigWBA", value: true},
     // Available Date Alert, issue audible alert when available date found if true
     {name: "dvsaConfigADA", value: true}
+
 ];
 
-// UTILITIES
 
+// CONFIG PARAMETER FUNCTIONS
+
+// Function to return a config parameter value by name converting dates and times
 function dvsaConfigValue(paramName) {
     const parameter = dvsaConfigParameters.find(param => param.name === paramName);
-    return parameter ? parameter.value : null;
+    if (parameter) {
+        const value = parameter.value;
+        const fullDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+        const timePattern = /^\d{2}:\d{2}$/;
+
+        if (fullDatePattern.test(value)) {
+            const [year, month, day] = value.split('-').map(Number);
+            const newDate = new Date(year, month - 1, day);
+            return newDate;
+        } else if (timePattern.test(value)) {
+            const [hours, minutes] = value.split(':').map(Number);
+            const newDate = new Date(1970, 0, 1, hours, minutes);
+            return newDate;
+        }
+        return value;
+    }
+    return null;
 }
 
+// Function to return all URL paramaters
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// Function to reset or update default config parameters with values stored and/or passed in a URL
 function updateConfigParameters() {
     // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -87,6 +143,10 @@ function updateConfigParameters() {
     log("dvsaConfig parameters set to: " + JSON.stringify(storedParams));
 }
 
+
+// ALERT FUNCTION
+
+// Function to add an alert button to the page and issue audio alert until button is clicked
 async function attentionAlert() {
     // NB need to enable audio in chrome site preferences for the DVSA site so that sound can autoplay
 
@@ -127,15 +187,20 @@ async function attentionAlert() {
     }
 }
 
+// DELAY FUNCTIONS
+
+// Function to create an average sleep interval given an average value
 function randomSleepInt(avgInt) {
   const t = dvsaConfigValue(avgInt);
   return Math.floor(Math.random()*(t+1) + t/2);
 }
 
+// Function to sleep for a given interval
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Function to wait until a given launch time (if valid)
 async function waitForLaunch(launchTime) {
     const currentTime = new Date();
     const launchDate = new Date(launchTime);
@@ -148,17 +213,68 @@ async function waitForLaunch(launchTime) {
     await sleep(timeDifference);
 }
 
-function getUrlParameter(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
+// DATE AND TIME FUNCTIONS
+
+// Function to compare dates
+function isDateInRange(date, startDate, endDate) {
+    return date >= startDate && date <= endDate;
 }
 
+// Function to compare times
+function isTimeInRange(time, startTime, endTime) {
+    return time >= startTime && time <= endTime;
+}
+
+// Function to find the closest date
+function findClosestDate(dates, targetDate) {
+    return dates.reduce((closest, current) => {
+        return Math.abs(current - targetDate) < Math.abs(closest - targetDate) ? current : closest;
+    });
+}
+
+// Function to find the closest time
+function findClosestTime(times, targetTime) {
+    return times.reduce((closest, current) => {
+        return Math.abs(current - targetTime) < Math.abs(closest - targetTime) ? current : closest;
+    });
+}
+
+// Function format a date yyyy-mm-yy independent of locale
+function formattedDate(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// Function to parse dateTimeLabel from test centre page and return the date and time
+function parseDateTimeLabel(dateTimeLabel) {
+    let [day, date, month, year, time] = dateTimeLabel.split(" ");
+
+    // Convert time to 24-hour format
+    let [hour, minute] = time.slice(0, -2).split(':');
+    const period = time.slice(-2);
+    if (period === 'pm' && hour !== '12') {
+        hour = parseInt(hour) + 12;
+    } else if (period === 'am' && hour === '12') {
+        hour = '00';
+    }
+    hour = hour < 10 ? '0' + hour : hour;
+
+    let parsedDate = new Date(`${month} ${date}, ${year}`);
+    let parsedTime = new Date(`1970-01-01T${hour}:${minute}:00`);
+
+    return [parsedDate, parsedTime];
+}
+
+
+// MISC FUNCTIONS
+
+// Function to output a formatted log message
 function log(message) {
     var today = new Date();
     var formatted = today.toLocaleString();
     console.log(formatted + " - DVSA Script: " + message);
 }
 
+// Function to restart the search loop
 function restartSearch() {
     document.location.href = "https://driverpracticaltest.dvsa.gov.uk/manage?execution=e1s1";
 }
@@ -189,8 +305,9 @@ async function main() {
                 log("We have been blocked - alerting");
                 attentionAlert();
             } else {
-                log("We have been blocked - silent wait and then retry");
-                await sleep(randomSleepInt("dvsaConfigASI"))
+                const waitTime = randomSleepInt("dvsaConfigASI");
+                log("We have been blocked - silent wait for " + (waitTime/1000/60).toFixed(1) + " mins before trying again");
+                await sleep(waitTime);
                 restartSearch();
             }
             return;
@@ -260,70 +377,121 @@ async function main() {
             }
         });
 
-        // append available dates for each centre
-        log("Getting available dates for each centre");
+        // check available dates for each centre in turn
+        const firstTestDate = new Date(dvsaConfigValue("dvsaConfigFTD"));
+        const lastTestDate = new Date(dvsaConfigValue("dvsaConfigLTD"));
         for (const centre of testCentreData) {
             const waitTime = randomSleepInt("dvsaConfigAPI");
-            log("Waiting for " + (waitTime/1000).toFixed(1) + " seconds then getting dates for: " + JSON.stringify(centre.name));
+            log("Checking dates for: " + JSON.stringify(centre.name));
             await sleep(waitTime);
 
-            let availableDates = [];
+            let validSlots = 0;
             await new Promise((resolve, reject) => {
                 GM.xmlHttpRequest({
                     method: "GET",
                     url: centre.url, // URL returning HTML content
-                    onload: function(response) {
+                    onload: function (response) {
                         try {
                             let parser = new DOMParser();
                             let doc = parser.parseFromString(response.responseText, "text/html");
-                            let bookableDates = doc.querySelectorAll(".BookingCalendar-date--bookable");
-                            bookableDates.forEach(element => {
-                                const dateStr = element.querySelector('.BookingCalendar-dateLink').getAttribute('data-date');
-                                availableDates.push(dateStr);
+
+                            // Get all elements with the specified class
+                            let slotElements = doc.querySelectorAll('.SlotPicker-slot-label.unchecked.no-price');
+
+                            // Count valid slots
+                            slotElements.forEach(slot => {
+                                let dateTimeLabel = slot.querySelector('input').getAttribute('data-datetime-label');
+                                let [slotDate, slotTime] = parseDateTimeLabel(dateTimeLabel);
+                                if (isDateInRange(slotDate, dvsaConfigValue("dvsaConfigFTD").getTime(), dvsaConfigValue("dvsaConfigLTD").getTime()) &&
+                                    isTimeInRange(slotTime, dvsaConfigValue("dvsaConfigFTT").getTime(), dvsaConfigValue("dvsaConfigLTT").getTime())) {
+                                    validSlots+=1;
+                                }
                             });
-                            centre.dates = availableDates;
                             resolve();
                         } catch (e) {
                             log("Failed to parse HTML response: " + e);
                             reject(e);
                         }
                     },
-                    onerror: function(e) {
+                    onerror: function (e) {
                         log("Request failed: " + e);
                         reject(e);
                     }
                 });
             });
-        }
 
-        // Check for the first test centre with an available date in range
-        log("Searching test centres for available dates in range");
-        const firstTestTime = new Date(dvsaConfigValue("dvsaConfigFTD")).getTime();
-        const lastTestTime = new Date(dvsaConfigValue("dvsaConfigLTD")).getTime();
-        for (const centre of testCentreData) {
-            for (const date of centre.dates) {
-                const testDate = new Date(date);
-                const testTime = testDate.getTime();
-                if (testTime >= firstTestTime && testTime <= lastTestTime) {
-                    log("Date found: " + centre.name + " has availability on: " + testDate + "!")
-                    await sleep(randomSleepInt("dvsaConfigAPI"));
-                    centre.element.click()
-                    return;
-                }
+            // If the test centre has valid slots then open the booking page
+            if(validSlots > 0) {
+                log(centre.name + " has " + validSlots + " matching slot(s) available!");
+                // await sleep(randomSleepInt("dvsaConfigAPI"));
+                centre.element.click();
+                return;
+
             }
         }
 
-        // if there are no matching dates in any of the centres then wait before looping again
-        log("Nothing found: waiting before searching again")
-        await sleep(randomSleepInt("dvsaConfigASI"));
+        // if no matching slots found in any of the centres then wait before trying again
+        const waitTime = randomSleepInt("dvsaConfigASI");
+        log("No matching slots found: waiting for " + (waitTime/1000/60).toFixed(1) + " mins before trying again");
+        await sleep(waitTime);
         restartSearch();
         return;
     }
 
-    // we are on a test centre page with matching dates
+    // we are on a test centre page that has matching dates (unless just taken)
     if (document.title.includes("test times available")) {
-        log("This test centre is the closest with matching available dates");
-        if (dvsaConfigValue("dvsaConfigADA")) attentionAlert();
+
+        // Get all elements with the specified class
+        let slotElements = document.querySelectorAll('.SlotPicker-slot-label.unchecked.no-price');
+
+        // Extract valid slots
+        let validSlots = [];
+        slotElements.forEach(slot => {
+            let dateTimeLabel = slot.querySelector('input').getAttribute('data-datetime-label');
+            let [slotDate, slotTime] = parseDateTimeLabel(dateTimeLabel);
+            if (isDateInRange(slotDate, dvsaConfigValue("dvsaConfigFTD").getTime(), dvsaConfigValue("dvsaConfigLTD").getTime()) &&
+                isTimeInRange(slotTime, dvsaConfigValue("dvsaConfigFTT").getTime(), dvsaConfigValue("dvsaConfigLTT").getTime())) {
+                validSlots.push({ date: slotDate, time: slotTime, element: slot });
+            }
+        });
+
+        // If there are valid slots then choose the best one
+        if (validSlots.length > 0) {
+
+            // Find the closest date to dvsaConfigITD
+            let closestDate = findClosestDate(validSlots.map(slot => slot.date), dvsaConfigValue("dvsaConfigITD").getTime());
+
+            // Filter slots to only those on the closest date
+            let slotsOnClosestDate = validSlots.filter(slot => slot.date.getTime() === closestDate.getTime());
+
+            // Find the closest time to dvsaConfigITT on the closest date
+            let closestTimeSlot = findClosestTime(slotsOnClosestDate.map(slot => slot.time), dvsaConfigValue("dvsaConfigITT").getTime());
+
+            // Find the slot element with the closest time
+            let selectedSlot = slotsOnClosestDate.find(slot => slot.time.getTime() === closestTimeSlot.getTime());
+
+            if (selectedSlot) {
+                log(`Best slot: ${selectedSlot.date.toLocaleDateString()} at ${selectedSlot.time.toLocaleTimeString()}`);
+                // Click on that date element
+                document.querySelector(`[data-date="${formattedDate(selectedSlot.date)}"]`).click();
+                // Click on the best slot
+                selectedSlot.element.click();
+                // Click the continue button
+                const continueButton = document.getElementById('slot-chosen-submit');
+                // NB I DON'T DARE DO THIS... JUST IN CASE THE SLOT IS CHANGED
+                // continueButton.click();
+                // NB JUST STOPPING HERE AND ALERTING INSTEAD
+                // Alert if required
+                if (dvsaConfigValue("dvsaConfigADA")) attentionAlert();
+                // NB WE COULD CONTINUE ONTO THE NEXT PAGE AND BOOK THE SLOT
+                return;
+            }
+        }
+
+        // If no matching slots found in this centre then they must have just been taken
+        log("Matching slots no longer available - trying again");
+        await sleep(randomSleepInt("dvsaConfigAPI"));
+        restartSearch();
         return;
     }
 
@@ -354,8 +522,9 @@ async function main() {
         "Service unavailable" ];
     for (const issue of issues) {
         if (document.title.includes(issue)) {
-            log(issue + " - wait and reload");
-            await sleep(randomSleepInt("dvsaConfigASI"));
+            const waitTime = randomSleepInt("dvsaConfigASI");
+            log(issue + " -  waiting for " + (waitTime/1000/60).toFixed(1) + " mins before trying again");
+            await sleep(waitTime);
             restartSearch();
             return;
         }
@@ -371,7 +540,31 @@ async function main() {
     }
 }
 
-// RUN MAIN()
+// RUN MAIN() WHEN LOADED (WITH RELOAD IF NECESSARY)
 
-log("Running main()");
-main();
+log("Waiting for page to load");
+
+// Set a timeout to wait for the page to load
+const loadTimeout = 15000; // 15 seconds
+const checkInterval = 100; // 100 milliseconds
+
+// Function to check if the page has loaded
+function checkPageLoaded() {
+    if (document.readyState === 'complete') {
+        log('Page loaded - running main()');
+        clearInterval(intervalId);
+        main()
+    }
+}
+
+// Set an interval to check the page load status
+const intervalId = setInterval(checkPageLoaded, checkInterval);
+
+// Set a timeout to reload the page if it doesn't load in time
+setTimeout(() => {
+    if (document.readyState !== 'complete') {
+        log('Page did not load - trying again');
+        location.reload();
+    }
+    clearInterval(intervalId);
+}, loadTimeout);
