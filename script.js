@@ -46,16 +46,16 @@ let dvsaConfigParameters = [
     // Launch Time, format yyyy-mm-ddThh:mm:ss OR blank for immediate
     {name: "dvsaConfigLT", value: "2024-09-01T05:59:00"},
     // Average Page Interval, average time (ms) between page requests to reduce risk of WAF block
-    {name: "dvsaConfigAPI", value: 1000 * 10}, // 10 secs
+    {name: "dvsaConfigAPI", value: 1000}, // 1 sec
     // Average Search Interval, average time (ms) between test centre searches to reduce risk of WAF block
-    {name: "dvsaConfigASI", value: 1000 * 60 * 10}, // 10 mins
+    {name: "dvsaConfigASI", value: 1000 * 60 * 5}, // 5 mins
 
     // SEARCH PARAMETERS - TEST CENTRE
 
     // Search Location - Search Location, NB use a postcode to retrieve multiple centres
     {name: "dvsaConfigSL", value: "BR1"},
     // Minimum Centres, minimum number of centres to search
-    {name: "dvsaConfigMC", value: 8},
+    {name: "dvsaConfigMC", value: 12},
 
     // SEARCH PARAMETERS - DATES AND TIMES
 
@@ -139,7 +139,7 @@ function updateConfigParameters() {
     });
     // Save updated parameters back to GM storage
     GM_setValue('dvsaConfigParameters', JSON.stringify(storedParams));
-    log("dvsaConfig parameters set to: " + JSON.stringify(storedParams));
+    log("dvsaConfig parameters set to:\n" + JSON.stringify(storedParams, null, 2));
 }
 
 
@@ -351,8 +351,8 @@ async function main() {
             return;
         }
 
-        // we have enough search results so scan for centres with available tests
-        log("Scanning for test centres with available tests");
+        // we have enough search results so search test centres for matching slots
+        log("Searching test centres for matching slots");
         let testCentreData = [];
 
         // Select all elements with the class 'test-centre-details-link'
@@ -377,12 +377,12 @@ async function main() {
             }
         });
 
-        // check available dates for each centre in turn
+        // check available slots for each centre in turn
         const firstTestDate = new Date(dvsaConfigValue("dvsaConfigFTD"));
         const lastTestDate = new Date(dvsaConfigValue("dvsaConfigLTD"));
         for (const centre of testCentreData) {
             const waitTime = randomSleepInt("dvsaConfigAPI");
-            log("Checking dates for: " + JSON.stringify(centre.name));
+            log("Checking available slots for: " + JSON.stringify(centre.name));
             await sleep(waitTime);
 
             let validSlots = 0;
@@ -423,7 +423,7 @@ async function main() {
             // If the test centre has valid slots then open the booking page
             if(validSlots > 0) {
                 log(centre.name + " has " + validSlots + " matching slot(s) available!");
-                // await sleep(randomSleepInt("dvsaConfigAPI"));
+                await sleep(randomSleepInt("dvsaConfigAPI"));
                 centre.element.click();
                 return;
 
